@@ -1,0 +1,8 @@
+# credenciais (no Streamlit Cloud ficam em Settings > Secrets)
+.env
+.streamlit/secrets.toml
+*.json
+
+logs/
+__pycache__/
+*.pyc
