@@ -11,6 +11,9 @@ import datetime
 import html
 import io
 
+import base64
+from pathlib import Path
+
 import pandas as pd
 import streamlit as st
 
@@ -92,6 +95,14 @@ st.markdown("""
 .feed small {opacity: .6; margin-right: 6px;}
 .aovivo {font-size: 13px; opacity: .8;}
 .aovivo i {display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #0ca30c; margin-right: 6px;}
+@import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;700&family=Sora:wght@700&display=swap');
+:root {--pa-laranja-deep: #CE6E10; --pa-slate: #5B6459;}
+.cabecalho {display: flex; align-items: center; gap: 22px; margin-bottom: 4px;}
+.cabecalho img {width: 150px; height: auto;}
+.brand-eyebrow {font-family: 'Public Sans', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--pa-laranja-deep); display: block;}
+.brand-subtitle {font-family: 'Sora', sans-serif; font-weight: 700; font-size: 24px; color: var(--text-color); display: block; line-height: 1.25;}
+.brand-sub2 {font-size: 13px; opacity: .7; display: block;}
 .signature-fixed { position: fixed; bottom: 12px; left: 20px; color: #7a8a8a; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; z-index: 999999; pointer-events: none; }
 </style>
 """, unsafe_allow_html=True)
@@ -103,6 +114,29 @@ def carregar(horario: str) -> tuple[pd.DataFrame, datetime.datetime]:
     df = pd.DataFrame(Controle().registros())
     return df.reindex(columns=list(dict.fromkeys(list(df.columns) + COLUNAS)), fill_value="").fillna(""), \
         agora_dt()
+
+
+@st.cache_data
+def logo_base64(nome: str) -> str:
+    arq = Path(__file__).parent / "assets" / f"{nome}.png"
+    return base64.b64encode(arq.read_bytes()).decode() if arq.exists() else ""
+
+
+def cabecalho(col, universo: int):
+    """Mesma identidade do Portal Gestão de Compras: logo (versão escura no tema escuro) + texto da marca."""
+    # segue o tema que o Streamlit está usando de fato (pode diferir do sistema, se escolhido no menu)
+    tema = getattr(getattr(st.context, "theme", None), "type", None)
+    escuro = tema == "dark"
+    # logo original sempre; no tema escuro vai sobre um fundo branco arredondado, para o texto
+    # "PARENTE ANDRADE" (preto) ficar legível mesmo se a detecção do tema divergir do fundo real
+    logo = logo_base64("logo")
+    estilo = ' style="background:#fff;border-radius:10px;padding:6px 10px"' if escuro else ""
+    img = f'<img src="data:image/png;base64,{logo}" alt="Parente Andrade"{estilo}>' if logo else ""
+    laranja = "#F2951D" if escuro else "#CE6E10"
+    col.markdown(f'''<div class="cabecalho">{img}<div>
+        <span class="brand-eyebrow" style="color:{laranja}">Gestão de Compras | Parente Andrade</span>
+        <span class="brand-subtitle">Levantamento de regime tributário</span>
+        <span class="brand-sub2">{universo} fornecedores no envio</span></div></div>''', unsafe_allow_html=True)
 
 
 def diverge(informado: str, api: str) -> bool:
@@ -216,13 +250,12 @@ def painel():
     doc = int((base["DOCUMENTO_RECEBIDO"].str.lower() == "sim").sum())
     em_lembrete = n({"lembrete_1", "lembrete_2", "lembrete_3"})
 
-    topo_esq, topo_dir = st.columns([3, 1])
-    topo_esq.markdown("### Levantamento de regime tributário")
-    topo_esq.caption(f"Parente Andrade Ltda · {universo} fornecedores no envio")
+    topo_esq, topo_dir = st.columns([3, 1], vertical_alignment="center")
+    cabecalho(topo_esq, universo)
     prox = proximo_horario(agora)
     quando = f"{prox:%H:%M}" if prox.date() == agora.date() else f"{prox:%d/%m} às {prox:%H:%M}"
     lido = f"{lido_em:%H:%M}" if lido_em.date() == agora.date() else f"{lido_em:%d/%m %H:%M}"
-    topo_dir.markdown(f'<p class="aovivo" style="text-align:right;margin-top:14px"><i></i>Atualizado às {lido} · '
+    topo_dir.markdown(f'<p class="aovivo" style="text-align:right;margin:0 0 6px"><i></i>Atualizado às {lido} · '
                       f'próxima: {quando}</p>', unsafe_allow_html=True)
     if topo_dir.button("Atualizar agora", width="stretch"):
         carregar.clear()
