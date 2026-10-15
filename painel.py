@@ -45,7 +45,7 @@ def proximo_horario(agora: datetime.datetime) -> datetime.datetime:
 st.set_page_config(page_title="Regime Tributário | Parente Andrade", page_icon="📋", layout="wide")
 
 try:
-    from regime.controle import CANAIS_MANUAIS, COLUNAS, Controle, registrar_regime_manual
+    from regime.controle import CANAIS_MANUAIS, COLUNAS, Controle, agora_dt, registrar_regime_manual
 except Exception as erro:  # ex.: secret ausente no Streamlit Cloud - mostra em vez de travar
     st.error(f"O painel não conseguiu iniciar: {erro}")
     st.info("Confira em Settings → Secrets: `SPREADSHEET_ID = \"...\"` na primeira linha (antes de qualquer "
@@ -102,7 +102,7 @@ def carregar(horario: str) -> tuple[pd.DataFrame, datetime.datetime]:
     """Uma leitura por horário de atualização (o argumento é a chave do cache)."""
     df = pd.DataFrame(Controle().registros())
     return df.reindex(columns=list(dict.fromkeys(list(df.columns) + COLUNAS)), fill_value="").fillna(""), \
-        datetime.datetime.now()
+        agora_dt()
 
 
 def diverge(informado: str, api: str) -> bool:
@@ -136,6 +136,9 @@ def frase_evento(r) -> str:
     if st_.startswith("lembrete_"):
         return f"{nome}: {ROTULO[st_].lower()} enviado"
     if st_ == "enviado":
+        envio = r["DATA_ENVIO"]
+        if envio and envio > agora_dt().strftime("%Y-%m-%d %H:%M:%S"):
+            return f"{nome}: e-mail agendado para {envio[8:10]}/{envio[5:7]} {envio[11:16]}"
         return f"{nome}: e-mail enviado"
     if st_ == "erro":
         return f"{nome}: erro no envio"
@@ -199,7 +202,7 @@ def formulario_manual(df: pd.DataFrame):
 
 @st.fragment(run_every=VERIFICAR_HORARIO_SEG)
 def painel():
-    agora = datetime.datetime.now()
+    agora = agora_dt()
     try:
         df, lido_em = carregar(horario_vigente(agora).isoformat())
     except Exception as e:  # planilha fora do ar não derruba o painel (erro não fica em cache)

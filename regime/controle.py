@@ -38,8 +38,16 @@ REGIMES = ["MEI", "Simples Nacional", "Lucro Presumido", "Lucro Real"]
 SUFIXO_INFORMADO = " – informado (pendente de comprovação)"
 
 
+# Horário de Manaus (UTC-4, sem horário de verão) - o Streamlit Cloud roda em UTC.
+FUSO = datetime.timezone(datetime.timedelta(hours=-4), "America/Manaus")
+
+
+def agora_dt() -> datetime.datetime:
+    return datetime.datetime.now(FUSO).replace(tzinfo=None)
+
+
 def agora() -> str:
-    return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return agora_dt().strftime("%Y-%m-%d %H:%M:%S")
 
 
 # ---------------------------------------------------------------- migration
@@ -232,7 +240,7 @@ def registrar_regime_manual(id_: str, regime: str, canal: str, registrado_por: s
         res = gravar_regime_no_cadastro(id_, regime, comprovado=documento_recebido, forcar=forcar)
         if res == "conflito":
             return "conflito"
-    quando = datetime.datetime.now()
+    quando = agora_dt()
     nota = f"{quando:%d/%m/%Y} regime informado por {canal.lower()} (registro manual de {registrado_por})"
     if observacao.strip():
         nota += f": {observacao.strip()}"
