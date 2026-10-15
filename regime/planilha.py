@@ -21,7 +21,7 @@ def planilha() -> gspread.Spreadsheet:
     elif "gcp_service_account" in config.SECRETS:  # Streamlit Cloud
         info = dict(config.SECRETS["gcp_service_account"])
     else:
-        raise SystemExit("Defina GOOGLE_SERVICE_ACCOUNT_JSON ou GOOGLE_SECRETS_TOML no .env")
+        raise RuntimeError("Credencial do Google ausente: defina GOOGLE_SECRETS_TOML no .env ou [gcp_service_account] nos secrets do Streamlit")
     cliente = gspread.authorize(Credentials.from_service_account_info(info, scopes=_ESCOPOS))
     return cliente.open_by_key(config.SPREADSHEET_ID)
 

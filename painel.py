@@ -14,7 +14,6 @@ import io
 import pandas as pd
 import streamlit as st
 
-from regime.controle import CANAIS_MANUAIS, COLUNAS, Controle, registrar_regime_manual
 
 # Decisão do usuário (14/10/2026): de 2 em 2 horas, das 08:00 às 16:00, de segunda a sexta.
 ATUALIZACOES = [datetime.time(h) for h in (8, 10, 12, 14, 16)]
@@ -44,6 +43,14 @@ def proximo_horario(agora: datetime.datetime) -> datetime.datetime:
         dia += datetime.timedelta(days=1)
 
 st.set_page_config(page_title="Regime Tributário | Parente Andrade", page_icon="📋", layout="wide")
+
+try:
+    from regime.controle import CANAIS_MANUAIS, COLUNAS, Controle, registrar_regime_manual
+except Exception as erro:  # ex.: secret ausente no Streamlit Cloud - mostra em vez de travar
+    st.error(f"O painel não conseguiu iniciar: {erro}")
+    st.info("Confira em Settings → Secrets: `SPREADSHEET_ID = \"...\"` na primeira linha (antes de qualquer "
+            "[seção]) e o bloco `[gcp_service_account]` completo, igual ao dos outros apps.")
+    st.stop()
 
 ROTULO = {
     "pendente": "Pendente", "enviado": "Enviado", "lembrete_1": "Lembrete 1", "lembrete_2": "Lembrete 2",

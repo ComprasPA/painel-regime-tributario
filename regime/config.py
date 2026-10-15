@@ -24,7 +24,7 @@ SECRETS = _secrets() if not os.getenv("SPREADSHEET_ID") else {}
 def _obrigatorio(nome: str) -> str:
     valor = (os.getenv(nome) or str(SECRETS.get(nome, ""))).strip()
     if not valor:
-        raise SystemExit(f"Configuração ausente no .env (ou nos secrets do Streamlit): {nome} (veja .env.example)")
+        raise RuntimeError(f"Configuração ausente no .env (ou nos secrets do Streamlit): {nome}")
     return valor
 
 
