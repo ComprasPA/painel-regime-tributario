@@ -18,8 +18,8 @@ import pandas as pd
 import streamlit as st
 
 
-# Decisão do usuário (14/10/2026): de 2 em 2 horas, das 08:00 às 16:00, de segunda a sexta.
-ATUALIZACOES = [datetime.time(h) for h in (8, 10, 12, 14, 16)]
+# Decisão do usuário (14-15/10/2026): de 2 em 2 horas no horário comercial, segunda a sexta.
+ATUALIZACOES = [datetime.time(h, 15) for h in (8, 10, 12, 14, 16)]  # 15 min após a leitura do agente (08, 10, 12, 14, 16h)
 VERIFICAR_HORARIO_SEG = 300  # só confere o relógio; a planilha é lida apenas quando muda o horário
 
 

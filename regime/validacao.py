@@ -30,7 +30,8 @@ def formatar_cnpj(texto) -> str:
 def extrair_emails(texto) -> list[str]:
     """Aceita células com vários endereços, '"Nome" <email>', ';', ',' etc.
     Corrige o erro comum 'gmail. com'."""
-    t = re.sub(r"\.\s+(com|br|net|org)\b", r".\1", str(texto or ""), flags=re.I)
+    t = re.sub(r"_x000d_", " ", str(texto or ""), flags=re.I)  # sujeira de exportação do Excel
+    t = re.sub(r"\.\s+(com|br|net|org)\b", r".\1", t, flags=re.I)
     vistos = []
     for e in _RX_EMAIL.findall(t):
         e = e.lower().rstrip(".")
