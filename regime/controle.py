@@ -179,11 +179,23 @@ def sincronizar() -> dict:
 
 
 # ---------------------------------------------------------------- regra do regime no cadastro
-def gravar_regime_no_cadastro(cnpj: str, regime: str, comprovado: bool, forcar: bool = False) -> str:
+def regime_base(valor: str) -> str:
+    """'Simples Nacional – informado (...)' -> 'Simples Nacional'; 'MEI – Microempreendedor...' -> 'MEI'."""
+    v = str(valor or "").replace(SUFIXO_INFORMADO, "").strip()
+    return "MEI" if v.upper().startswith("MEI") else v
+
+
+
+def gravar_regime_no_cadastro(cnpj: str, regime: str, comprovado: bool, forcar: bool = False,
+                              lote: dict | None = None) -> str:
+    # lote = {"cadastro": ler_cadastro(), "celulas": []}: lê a planilha uma vez e grava tudo no fim
+    # (o Google limita leituras por minuto - incidente de 15/10/2026 com dezenas de respostas)
     """Grava REGIME_TRIBUTARIO em todas as linhas do cadastro com esse CNPJ.
 
-    - resposta do fornecedor: "Simples Nacional – informado (pendente de comprovação)"
-    - documento recebido:     "Simples Nacional" (mesmo valor da lista do Painel de Pagamento)
+    Só o regime ("MEI", "Simples Nacional", "Lucro Presumido", "Lucro Real" - mesma lista do
+    app de dados bancários), sem status: decisão do usuário em 15/10/2026. Se o documento
+    chegou ou não fica no controle (STATUS/DOCUMENTO_RECEBIDO). `comprovado` não muda o valor.
+    Valores antigos com o sufixo " – informado (...)" são tratados como o mesmo regime.
 
     Não sobrescreve um regime diferente que já esteja no cadastro (gravado à mão
     ou pelo Painel): devolve 'conflito' para o caso ir para revisão manual.
@@ -191,14 +203,14 @@ def gravar_regime_no_cadastro(cnpj: str, regime: str, comprovado: bool, forcar: 
     Devolve 'gravado', 'sem_alteracao' ou 'conflito'.
     """
     assert regime in REGIMES, regime
-    novo = regime if comprovado else regime + SUFIXO_INFORMADO
-    ws, cab, cadastro = ler_cadastro()
+    novo = regime  # sem " – informado (pendente de comprovação)" (decisão de 15/10/2026)
+    ws, cab, cadastro = lote["cadastro"] if lote else ler_cadastro()
     col = cab.index("REGIME_TRIBUTARIO") + 1
     alvo = [r for r in cadastro if digitos(r["CNPJ"]) == digitos(cnpj)]
     celulas = []
     for r in alvo:
         atual = r["REGIME_TRIBUTARIO"]
-        base_atual = atual.replace(SUFIXO_INFORMADO, "").strip()
+        base_atual = regime_base(atual)
         if atual == novo:
             continue
         if atual and base_atual != regime and forcar:
@@ -206,9 +218,13 @@ def gravar_regime_no_cadastro(cnpj: str, regime: str, comprovado: bool, forcar: 
         elif atual and base_atual != regime:
             log.warning(f"Conflito de regime no cadastro (linha {r['_linha']}, CNPJ {cnpj}): '{atual}' x '{novo}'")
             return "conflito"
-        if base_atual == regime and not atual.endswith(SUFIXO_INFORMADO) and not comprovado:
-            continue  # já está comprovado; não rebaixa para "informado"
-        celulas.append(gspread.Cell(r["_linha"], col, novo))
+        celulas.append(gspread.Cell(r["_linha"], col, novo))  # vazio, ou mesmo regime em formato antigo
+    if celulas and lote is not None:  # em lote: acumula e atualiza a cópia local (sem ler/gravar a planilha agora)
+        lote["celulas"].extend(celulas)
+        for r in alvo:
+            r["REGIME_TRIBUTARIO"] = novo
+        log.info(f"Regime a gravar no cadastro (CNPJ {cnpj}, {len(celulas)} linha(s)): {novo}")
+        return "gravado"
     if celulas:
         ws.update_cells(celulas, value_input_option="RAW")
         log.info(f"Regime gravado no cadastro (CNPJ {cnpj}, {len(celulas)} linha(s)): {novo}")
