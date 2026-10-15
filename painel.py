@@ -102,6 +102,16 @@ st.markdown("""
 .brand-eyebrow {font-family: 'Public Sans', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: .12em;
   text-transform: uppercase; color: var(--pa-laranja-deep); display: block;}
 .brand-subtitle {font-family: 'Sora', sans-serif; font-weight: 700; font-size: 24px; color: var(--text-color); display: block; line-height: 1.25;}
+/* celular: cabeçalho empilhado e compacto */
+@media (max-width: 640px) {
+  .block-container {padding-top: 3.6rem;}
+  .cabecalho {flex-direction: column; align-items: flex-start; gap: 6px;}
+  .cabecalho img {width: 118px;}
+  .brand-eyebrow {font-size: 10.5px; letter-spacing: .06em; white-space: nowrap;}
+  .brand-subtitle {font-size: 20px;}
+  .aovivo {text-align: left !important; font-size: 12px; margin: 4px 0 !important;}
+  .signature-fixed {display: none;}
+}
 .signature-fixed { position: fixed; bottom: 12px; left: 20px; color: #7a8a8a; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; z-index: 999999; pointer-events: none; }
 </style>
 """, unsafe_allow_html=True)
@@ -338,3 +348,4 @@ def painel():
 
 painel()
 st.markdown('<div class="signature-fixed">Created by SS.</div>', unsafe_allow_html=True)
+st.markdown('<style>@media (min-width: 641px) {.assinatura-mobile {display:none;}}</style><p class="assinatura-mobile" style="font-size:11px;font-weight:700;color:#7a8a8a;margin-top:24px">Created by SS.</p>', unsafe_allow_html=True)
