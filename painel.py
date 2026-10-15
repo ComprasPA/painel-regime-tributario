@@ -102,7 +102,6 @@ st.markdown("""
 .brand-eyebrow {font-family: 'Public Sans', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: .12em;
   text-transform: uppercase; color: var(--pa-laranja-deep); display: block;}
 .brand-subtitle {font-family: 'Sora', sans-serif; font-weight: 700; font-size: 24px; color: var(--text-color); display: block; line-height: 1.25;}
-.brand-sub2 {font-size: 13px; opacity: .7; display: block;}
 .signature-fixed { position: fixed; bottom: 12px; left: 20px; color: #7a8a8a; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; z-index: 999999; pointer-events: none; }
 </style>
 """, unsafe_allow_html=True)
@@ -127,16 +126,13 @@ def cabecalho(col, universo: int):
     # segue o tema que o Streamlit está usando de fato (pode diferir do sistema, se escolhido no menu)
     tema = getattr(getattr(st.context, "theme", None), "type", None)
     escuro = tema == "dark"
-    # logo original sempre; no tema escuro vai sobre um fundo branco arredondado, para o texto
-    # "PARENTE ANDRADE" (preto) ficar legível mesmo se a detecção do tema divergir do fundo real
-    logo = logo_base64("logo")
-    estilo = ' style="background:#fff;border-radius:10px;padding:6px 10px"' if escuro else ""
-    img = f'<img src="data:image/png;base64,{logo}" alt="Parente Andrade"{estilo}>' if logo else ""
+    # sem fundo: texto "PARENTE ANDRADE" branco no tema escuro e preto no claro (pedido do usuário)
+    logo = logo_base64("logo_escuro" if escuro else "logo") or logo_base64("logo")
+    img = f'<img src="data:image/png;base64,{logo}" alt="Parente Andrade">' if logo else ""
     laranja = "#F2951D" if escuro else "#CE6E10"
     col.markdown(f'''<div class="cabecalho">{img}<div>
         <span class="brand-eyebrow" style="color:{laranja}">Gestão de Compras | Parente Andrade</span>
-        <span class="brand-subtitle">Levantamento de regime tributário</span>
-        <span class="brand-sub2">{universo} fornecedores no envio</span></div></div>''', unsafe_allow_html=True)
+        <span class="brand-subtitle">Levantamento de regime tributário</span></div></div>''', unsafe_allow_html=True)
 
 
 def diverge(informado: str, api: str) -> bool:
