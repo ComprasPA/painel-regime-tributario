@@ -86,7 +86,11 @@ st.markdown("""
 .kpi .r {font-size: 13px; opacity: .75; margin: 0;}
 .kpi .v {font-size: 28px; font-weight: 600; margin: 0; line-height: 1.2;}
 .kpi .s {font-size: 12px; opacity: .65; margin: 0;}
-.barra {display: flex; height: 24px; border-radius: 4px; overflow: hidden; gap: 2px; margin: 4px 0 6px;}
+.barra {display: flex; height: 24px; border-radius: 4px; overflow: hidden; gap: 2px; flex: 1; min-width: 0;}
+.barra-linha {display: flex; align-items: center; gap: 14px; margin: 4px 0 6px;}
+.pct {text-align: right; line-height: 1.1; white-space: nowrap;}
+.pct b {font-size: 22px; font-weight: 700; display: block;}
+.pct small {font-size: 11.5px; opacity: .7;}
 .leg {display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; opacity: .85;}
 .leg span i {display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px;}
 .reg {display: grid; grid-template-columns: 130px 1fr 40px; gap: 6px 10px; align-items: center; font-size: 14px;}
@@ -283,8 +287,14 @@ def painel():
         if q:
             partes.append(f'<div style="flex:{q};background:{cor}" title="{rotulo}: {q}"></div>')
         legenda.append(f'<span><i style="background:{cor}"></i>{rotulo} {q}</span>')
-    st.markdown(f'<div class="barra">{"".join(partes)}</div><div class="leg">{"".join(legenda)}</div>',
-                unsafe_allow_html=True)
+    # progresso = fornecedores que já informaram o regime (respondido + comprovado) sobre os que estão no envio
+    informaram = n({"respondido", "comprovado"})
+    pct = informaram / universo if universo else 0
+    pct_comp = n({"comprovado"}) / universo if universo else 0
+    st.markdown(f'<div class="barra-linha"><div class="barra">{"".join(partes)}</div>'
+                f'<div class="pct" title="{informaram} de {universo} já informaram o regime"><b>{pct:.0%}</b>'
+                f'<small>informaram · {pct_comp:.0%} comprovados</small></div></div>'
+                f'<div class="leg">{"".join(legenda)}</div>', unsafe_allow_html=True)
 
     st.write("")
     e, d = st.columns(2)
