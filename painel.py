@@ -271,13 +271,15 @@ def painel():
         carregar.clear()
         st.rerun()
 
-    c = st.columns(6)
+    c = st.columns(7)
     kpi(c[0], "Enviados", enviados, f"de {universo}")
     kpi(c[1], "Responderam", responderam, f"{responderam / enviados:.0%} dos enviados" if enviados else "—")
     kpi(c[2], "Documento recebido", doc, "comprovados")
     kpi(c[3], "Aguardando resposta", n(AGUARDANDO), f"{em_lembrete} em lembrete")
     kpi(c[4], "Revisão manual", n({"revisao_manual"}), "resposta ambígua ou conflito")
     kpi(c[5], "Fora do envio", n(FORA), "sem e-mail, CNPJ inválido ou erro")
+    acrescimos = int((df.get("ORIGEM_CADASTRO", pd.Series(dtype=str)) == "acréscimo manual").sum())
+    kpi(c[6], "Acréscimo manual", acrescimos, "fornecedores fora da base")
 
     st.markdown(f"<p style='margin:18px 0 0;font-size:14px;opacity:.8'>Andamento dos {universo} fornecedores no envio</p>",
                 unsafe_allow_html=True)

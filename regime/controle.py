@@ -22,7 +22,11 @@ COLUNAS = [
     "OUTLOOK_CONVERSA_ID", "OBSERVACOES", "REVISADO_POR", "ATUALIZADO_EM",
     # regime informado fora do e-mail (telefone, WhatsApp...) e cobrança só do documento
     "ORIGEM_REGIME", "QTD_COBRANCAS_DOC", "DATA_ULTIMA_COBRANCA_DOC",
+    "DATA_AGRADECIMENTO",  # confirmação de recebimento enviada (comprovados)
+    "ORIGEM_CADASTRO",  # vazio = base; "acréscimo manual" = fornecedor incluído fora da base (21/10)
 ]
+
+ORIGEM_ACRESCIMO = "acréscimo manual"
 
 CANAIS_MANUAIS = ["Telefone", "WhatsApp", "Presencial", "E-mail fora do agente", "Outro"]
 
@@ -287,3 +291,29 @@ def tipo_cobranca(reg: dict) -> str | None:
     if reg["STATUS"] == "respondido" and reg.get("DOCUMENTO_RECEBIDO", "").lower() != "sim" and reg.get("EMAILS"):
         return "documento"
     return None
+
+
+# ---------------------------------------------------------------- acréscimo manual (fora da base)
+def incluir_fornecedor_manual(nome: str, cnpj: str, email: str = "", contato: str = "", vendedor: str = "",
+                              regime: str = "", por: str = "", observacao: str = "") -> str:
+    """Inclui um fornecedor novo (fora da base) no CadastroFornecedores e no controle, marcado como
+    'acréscimo manual'. Devolve 'incluido', 'ja_existe' ou 'cnpj_invalido'."""
+    from .validacao import cnpj_valido, formatar_cnpj
+    from .planilha import ler_cadastro
+    if not cnpj_valido(cnpj):
+        return "cnpj_invalido"
+    ws, cab, cad = ler_cadastro()
+    if any(digitos(c["CNPJ"]) == digitos(cnpj) for c in cad):
+        return "ja_existe"
+    dados = {"FORNECEDOR": nome.strip().upper(), "CNPJ": formatar_cnpj(cnpj), "EMAIL": email.strip(),
+             "CONTATO": contato.strip(), "VENDEDOR": vendedor.strip(), "REGIME_TRIBUTARIO": regime or ""}
+    ws.append_rows([[dados.get(c, "") for c in cab]], value_input_option="RAW", table_range="A1")
+    sincronizar()
+    ctl = Controle()
+    ctl.atualizar(digitos(cnpj), ORIGEM_CADASTRO=ORIGEM_ACRESCIMO,
+                  OBSERVACOES=" | ".join(x for x in (f"{agora()[:16]} incluído manualmente por {por or 'equipe'}", observacao) if x))
+    ctl.salvar()
+    if regime:
+        registrar_regime_manual(digitos(cnpj), regime, "Outro", por or "equipe", observacao="regime informado na inclusão manual")
+    log.info(f"Acréscimo manual: {nome} (CNPJ {cnpj}) por {por or 'equipe'}")
+    return "incluido"
