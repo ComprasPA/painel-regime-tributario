@@ -287,13 +287,13 @@ def painel():
         if q:
             partes.append(f'<div style="flex:{q};background:{cor}" title="{rotulo}: {q}"></div>')
         legenda.append(f'<span><i style="background:{cor}"></i>{rotulo} {q}</span>')
-    # progresso = fornecedores que já informaram o regime (respondido + comprovado) sobre os que estão no envio
-    informaram = n({"respondido", "comprovado"})
+    # progresso = fornecedores que responderam ao levantamento (respondido + comprovado) sobre os que estão no envio
+    informaram = n(RESPONDERAM)  # mesma conta do card "Responderam" (respondido + revisão manual + comprovado)
     pct = informaram / universo if universo else 0
     pct_comp = n({"comprovado"}) / universo if universo else 0
     st.markdown(f'<div class="barra-linha"><div class="barra">{"".join(partes)}</div>'
                 f'<div class="pct" title="{informaram} de {universo} já informaram o regime"><b>{pct:.0%}</b>'
-                f'<small>informaram · {pct_comp:.0%} comprovados</small></div></div>'
+                f'<small>responderam · {pct_comp:.0%} comprovados</small></div></div>'
                 f'<div class="leg">{"".join(legenda)}</div>', unsafe_allow_html=True)
 
     st.write("")
