@@ -129,6 +129,23 @@ def carregar(horario: str) -> tuple[pd.DataFrame, datetime.datetime]:
         agora_dt()
 
 
+@st.cache_data(max_entries=3, show_spinner=False)
+def abc_fornecedores(horario: str) -> pd.DataFrame:
+    """Ranking ABC por CNPJ (notas de entrada 2024-2026), lido da aba ABC_Fornecedores da planilha.
+    Uma leitura por horário de atualização. Se a aba não puder ser lida, usa o CSV local."""
+    try:
+        from regime.planilha import planilha
+        valores = planilha().worksheet("ABC_Fornecedores").get_all_values(value_render_option="UNFORMATTED_VALUE")
+        df = pd.DataFrame(valores[1:], columns=valores[0])
+    except Exception:
+        arq = Path(__file__).parent / "dados" / "abc_fornecedores.csv"
+        if not arq.exists():
+            return pd.DataFrame(columns=["CNPJ", "QTD_NOTAS", "VALOR_TOTAL", "ABC_QTD", "ABC_VALOR"])
+        df = pd.read_csv(arq, sep=";", dtype=str, keep_default_na=False)
+    df["CNPJ"] = df["CNPJ"].astype(str).str.zfill(14)
+    return df
+
+
 @st.cache_data
 def logo_base64(nome: str) -> str:
     arq = Path(__file__).parent / "assets" / f"{nome}.png"
@@ -332,6 +349,9 @@ def painel():
     tab = df.copy()
     tab["Status"] = tab["STATUS"].map(ROTULO).fillna(tab["STATUS"])
     tab["Divergência"] = tab.apply(lambda r: "Sim" if diverge(r["REGIME_INFORMADO"], r["REGIME_SUGERIDO_API"]) else "", axis=1)
+    abc = abc_fornecedores(horario_vigente(agora).isoformat()).set_index("CNPJ")
+    tab["ABC qtd."] = tab["ID"].map(abc["ABC_QTD"]).fillna("")
+    tab["ABC valor"] = tab["ID"].map(abc["ABC_VALOR"]).fillna("")
     if busca:
         b = busca.strip().upper()
         dig = "".join(ch for ch in b if ch.isdigit())
@@ -346,13 +366,13 @@ def painel():
 
     tab["Origem do regime"] = tab["ORIGEM_REGIME"].where(tab["ORIGEM_REGIME"] != "",
                                                           tab["REGIME_INFORMADO"].map(lambda x: "e-mail" if x else ""))
-    vis = tab[["FORNECEDOR", "CNPJ", "Status", "REGIME_INFORMADO", "Origem do regime", "REGIME_SUGERIDO_API", "Divergência",
+    vis = tab[["FORNECEDOR", "CNPJ", "Status", "REGIME_INFORMADO", "Origem do regime", "REGIME_SUGERIDO_API", "Divergência", "ABC qtd.", "ABC valor",
                "DOCUMENTO_RECEBIDO", "DATA_ENVIO", "QTD_LEMBRETES", "DATA_RESPOSTA", "EMAILS", "OBSERVACOES"]].rename(columns={
         "FORNECEDOR": "Fornecedor", "REGIME_INFORMADO": "Regime informado", "REGIME_SUGERIDO_API": "Sugerido (API)",
         "DOCUMENTO_RECEBIDO": "Documento", "DATA_ENVIO": "Enviado em", "QTD_LEMBRETES": "Lembretes",
         "DATA_RESPOSTA": "Respondeu em", "EMAILS": "E-mails", "OBSERVACOES": "Observações"})
     cab, bt = st.columns([4, 1])
-    cab.caption(f"{len(vis)} fornecedor(es) na lista")
+    cab.caption(f"{len(vis)} fornecedor(es) na lista · classe ABC pela quantidade de notas e pelo valor comprado")
     bt.download_button("Baixar Excel", excel(vis), file_name=f"levantamento_regime_{datetime.date.today():%Y%m%d}.xlsx",
                        width="stretch")
     st.dataframe(vis, hide_index=True, width="stretch", height=460)
