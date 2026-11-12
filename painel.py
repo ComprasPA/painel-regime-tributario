@@ -64,10 +64,10 @@ ROTULO = {
 # ordem e cor da barra de andamento
 ETAPAS = [
     ("Comprovado", ["comprovado"], "#1baf7a"),
-    ("Respondido", ["respondido"], "#619935"),
+    ("Respondido", ["respondido"], "#2a78d6"),
     ("Revisão manual", ["revisao_manual"], "#eb6834"),
     ("Em lembrete", ["lembrete_1", "lembrete_2", "lembrete_3"], "#eda100"),
-    ("Enviado", ["enviado"], "#C5DDA8"),
+    ("Enviado", ["enviado"], "#8fb8e8"),
     ("Pendente", ["pendente"], "#b4b2a9"),
 ]
 ENVIADOS = {"enviado", "lembrete_1", "lembrete_2", "lembrete_3", "respondido", "revisao_manual", "comprovado"}
@@ -80,82 +80,13 @@ USUARIOS = ["Silvio Silveira", "Ednilson Santos Brito", "Daiana Lima", "Fabio Fe
 
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-/* Visual PA (Parente Andrade): verde e laranja do logo. Segue o claro/escuro do sistema. */
-:root {
-  --pa-bg: #F1F7EA; --pa-surface: #FFFFFF; --pa-border: #D5E4C6; --pa-text: #1E2B19; --pa-sub: #5B6A52;
-  --pa-input: #FFFFFF; --pa-acento: #619935; --pa-acento-deep: #4C7D27; --pa-laranja: #E8A838;
-  --pa-sombra: rgba(34, 56, 24, 0.10); --pa-scheme: light;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --pa-bg: #10150D; --pa-surface: #1A2116; --pa-border: #2C3827; --pa-text: #EDF3E6; --pa-sub: #9DB091;
-    --pa-input: #222B1D; --pa-acento: #7DB84A; --pa-acento-deep: #619935; --pa-laranja: #F0B445;
-    --pa-sombra: rgba(0, 0, 0, 0.45); --pa-scheme: dark;
-  }
-}
-html, body, .stApp, [class*="st-"], button, input, textarea {font-family: 'Inter', 'Segoe UI', sans-serif;}
-.stApp {background: var(--pa-bg); color: var(--pa-text);}
 #MainMenu, footer, [data-testid='stToolbar'] {visibility: hidden;}
-.block-container {padding-top: 3rem; max-width: 1500px;}
-hr {border-color: var(--pa-border) !important;}
-
-/* textos */
-label, div[data-testid="stWidgetLabel"] p, div[data-testid="stMarkdownContainer"] p,
-div[data-testid="stMarkdownContainer"] li, .stApp h1, .stApp h2, .stApp h3, .stApp h4 {color: var(--pa-text) !important;}
-div[data-testid="stWidgetLabel"] p {font-weight: 600; font-size: 13px;}
-div[data-testid="stCaptionContainer"], div[data-testid="stCaptionContainer"] p,
-div[data-testid="stCaptionContainer"] * {color: var(--pa-sub) !important;}
-div[data-testid="stHeading"] h3 {font-weight: 700; letter-spacing: -0.2px; border-left: 5px solid var(--pa-laranja); padding-left: 12px;}
-
-/* faixa de topo com o logo (igual nos dois temas) */
-.cabecalho {display: flex; flex-wrap: wrap; align-items: center; gap: 22px; padding: 16px 28px;
-  border-radius: 18px; border-bottom: 4px solid var(--pa-laranja);
-  background: linear-gradient(120deg, #162610 0%, #2A4A1A 55%, #3F6E26 100%); box-shadow: 0 8px 24px var(--pa-sombra);}
-.cabecalho img {height: 54px; width: auto;}
-.cabecalho > div {min-width: 0;}
-.brand-eyebrow {font-weight: 600; font-size: 13.5px; letter-spacing: .04em; color: #CFE3BE; display: block; margin-top: 3px;}
-.brand-subtitle {font-weight: 800; font-size: 26px; letter-spacing: -0.3px; color: #FFFFFF !important; display: block; line-height: 1.15;}
-
-/* cartões: KPIs, blocos com borda, expansor, tabela */
-.kpi {background: var(--pa-surface); border: 1px solid var(--pa-border); border-radius: 16px; padding: 12px 16px;
-  box-shadow: 0 6px 20px var(--pa-sombra); color: var(--pa-text);}
-.kpi .r {font-size: 13px; opacity: .8; margin: 0; color: var(--pa-sub);}
-.kpi .v {font-size: 28px; font-weight: 700; margin: 0; line-height: 1.2;}
-.kpi .s {font-size: 12px; opacity: .75; margin: 0; color: var(--pa-sub);}
-.st-key-card_regime, .st-key-card_agente {background: var(--pa-surface); border-color: var(--pa-border) !important; border-radius: 16px; box-shadow: 0 6px 20px var(--pa-sombra);}
-div[data-testid="stExpander"] details {background: var(--pa-surface); border: 1px solid var(--pa-border) !important; border-radius: 16px; box-shadow: 0 6px 20px var(--pa-sombra);}
-div[data-testid="stExpander"] summary, div[data-testid="stExpander"] summary * {color: var(--pa-text) !important; font-weight: 600;}
-div[data-testid="stDataFrame"] {color-scheme: var(--pa-scheme); border: 1px solid var(--pa-border); border-radius: 14px; overflow: hidden; box-shadow: 0 6px 20px var(--pa-sombra);}
-div[data-testid="stDialog"] > div {border-radius: 20px !important; border-top: 5px solid var(--pa-laranja); background-color: var(--pa-surface) !important;}
-
-/* campos */
-div[data-baseweb="input"], div[data-baseweb="select"] > div, div[data-baseweb="base-input"] {
-  border-radius: 10px !important; background-color: var(--pa-input) !important; border-color: var(--pa-border) !important;}
-div[data-baseweb="select"] div, div[data-baseweb="select"] span {color: var(--pa-text);}
-div[data-testid="stTextInput"] input {background-color: var(--pa-input) !important; color: var(--pa-text) !important;}
-div[data-testid="stTextInput"] input::placeholder {color: var(--pa-sub); opacity: .75;}
-ul[role="listbox"] {background-color: var(--pa-surface) !important;}
-li[role="option"] {color: var(--pa-text) !important;}
-div[data-baseweb="input"]:focus-within, div[data-baseweb="select"]:focus-within > div {
-  border-color: var(--pa-acento) !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--pa-acento) 20%, transparent) !important;}
-span[data-baseweb="tag"] {background-color: var(--pa-acento) !important; color: #FFFFFF !important; border-radius: 8px !important;}
-input[type="radio"], input[type="checkbox"] {accent-color: var(--pa-acento);}
-
-/* botões */
-div.stButton button, div.stFormSubmitButton button, div.stDownloadButton button {border-radius: 10px; font-weight: 600; transition: all .15s ease;}
-div.stFormSubmitButton button[kind^="primary"], div.stButton button[kind^="primary"], div.stDownloadButton button[kind^="primary"] {
-  background: linear-gradient(135deg, var(--pa-acento), var(--pa-acento-deep)) !important; border: none !important; color: #FFFFFF !important;
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--pa-acento) 33%, transparent);}
-div.stFormSubmitButton button[kind^="primary"]:hover, div.stButton button[kind^="primary"]:hover, div.stDownloadButton button[kind^="primary"]:hover {
-  transform: translateY(-1px); box-shadow: 0 6px 16px color-mix(in srgb, var(--pa-acento) 47%, transparent);}
-div.stFormSubmitButton button[kind^="secondary"], div.stButton button[kind^="secondary"], div.stDownloadButton button[kind^="secondary"] {
-  background-color: var(--pa-surface) !important; border: 1.5px solid var(--pa-laranja) !important; color: var(--pa-text) !important;}
-div.stFormSubmitButton button[kind^="secondary"]:hover, div.stButton button[kind^="secondary"]:hover, div.stDownloadButton button[kind^="secondary"]:hover {
-  background-color: var(--pa-laranja) !important; border-color: var(--pa-laranja) !important; color: #20170A !important; transform: translateY(-1px);}
-
-/* andamento, regimes e atualizações */
-.barra {display: flex; height: 24px; border-radius: 6px; overflow: hidden; gap: 2px; flex: 1; min-width: 0;}
+.block-container {padding-top: 3rem;}
+.kpi {background: var(--secondary-background-color); border-radius: 8px; padding: 10px 14px;}
+.kpi .r {font-size: 13px; opacity: .75; margin: 0;}
+.kpi .v {font-size: 28px; font-weight: 600; margin: 0; line-height: 1.2;}
+.kpi .s {font-size: 12px; opacity: .65; margin: 0;}
+.barra {display: flex; height: 24px; border-radius: 4px; overflow: hidden; gap: 2px; flex: 1; min-width: 0;}
 .barra-linha {display: flex; align-items: center; gap: 14px; margin: 4px 0 6px;}
 .pct {text-align: right; line-height: 1.1; white-space: nowrap;}
 .pct b {font-size: 22px; font-weight: 700; display: block;}
@@ -163,22 +94,29 @@ div.stFormSubmitButton button[kind^="secondary"]:hover, div.stButton button[kind
 .leg {display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; opacity: .85;}
 .leg span i {display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px;}
 .reg {display: grid; grid-template-columns: 130px 1fr 40px; gap: 6px 10px; align-items: center; font-size: 14px;}
-.reg b {display: block; height: 10px; background: var(--pa-acento); border-radius: 0 3px 3px 0;}
+.reg b {display: block; height: 10px; background: #2a78d6; border-radius: 0 3px 3px 0;}
 .feed {font-size: 13px; line-height: 1.9;}
 .feed small {opacity: .6; margin-right: 6px;}
 .aovivo {font-size: 13px; opacity: .8;}
 .aovivo i {display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #0ca30c; margin-right: 6px;}
+@import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;700&family=Sora:wght@700&display=swap');
+:root {--pa-laranja-deep: #CE6E10; --pa-slate: #5B6459;}
+.cabecalho {display: flex; align-items: center; gap: 22px; margin-bottom: 4px;}
+.cabecalho img {width: 150px; height: auto;}
+.brand-eyebrow {font-family: 'Public Sans', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--pa-laranja-deep); display: block;}
+.brand-subtitle {font-family: 'Sora', sans-serif; font-weight: 700; font-size: 24px; color: var(--text-color); display: block; line-height: 1.25;}
 /* celular: cabeçalho empilhado e compacto */
 @media (max-width: 640px) {
   .block-container {padding-top: 3.6rem;}
-  .cabecalho {padding: 12px 16px; gap: 12px;}
-  .cabecalho img {height: 40px;}
-  .brand-eyebrow {font-size: 11px;}
-  .brand-subtitle {font-size: 19px;}
+  .cabecalho {flex-direction: column; align-items: flex-start; gap: 6px;}
+  .cabecalho img {width: 118px;}
+  .brand-eyebrow {font-size: 10.5px; letter-spacing: .06em; white-space: nowrap;}
+  .brand-subtitle {font-size: 20px;}
   .aovivo {text-align: left !important; font-size: 12px; margin: 4px 0 !important;}
   .signature-fixed {display: none;}
 }
-.signature-fixed { position: fixed; bottom: 12px; left: 20px; color: var(--pa-sub); font-size: 11px; font-weight: 700; letter-spacing: 0.5px; z-index: 999999; pointer-events: none; }
+.signature-fixed { position: fixed; bottom: 12px; left: 20px; color: #7a8a8a; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; z-index: 999999; pointer-events: none; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -215,12 +153,17 @@ def logo_base64(nome: str) -> str:
 
 
 def cabecalho(col, universo: int):
-    """Faixa de topo no visual PA: logo de texto claro sobre o gradiente verde escuro (igual nos dois temas)."""
-    logo = logo_base64("logo_escuro") or logo_base64("logo")
+    """Mesma identidade do Portal Gestão de Compras: logo (versão escura no tema escuro) + texto da marca."""
+    # segue o tema que o Streamlit está usando de fato (pode diferir do sistema, se escolhido no menu)
+    tema = getattr(getattr(st.context, "theme", None), "type", None)
+    escuro = tema == "dark"
+    # sem fundo: texto "PARENTE ANDRADE" branco no tema escuro e preto no claro (pedido do usuário)
+    logo = logo_base64("logo_escuro" if escuro else "logo") or logo_base64("logo")
     img = f'<img src="data:image/png;base64,{logo}" alt="Parente Andrade">' if logo else ""
+    laranja = "#F2951D" if escuro else "#CE6E10"
     col.markdown(f'''<div class="cabecalho">{img}<div>
-        <span class="brand-subtitle">Levantamento de regime tributário</span>
-        <span class="brand-eyebrow">Gestão de Compras | Parente Andrade</span></div></div>''', unsafe_allow_html=True)
+        <span class="brand-eyebrow" style="color:{laranja}">Gestão de Compras | Parente Andrade</span>
+        <span class="brand-subtitle">Levantamento de regime tributário</span></div></div>''', unsafe_allow_html=True)
 
 
 def diverge(informado: str, api: str) -> bool:
@@ -374,7 +317,7 @@ def painel():
 
     st.write("")
     e, d = st.columns(2)
-    with e.container(border=True, key="card_regime"):
+    with e.container(border=True):
         st.markdown("**Regime informado pelos fornecedores**")
         inf = base["REGIME_INFORMADO"].value_counts()
         maior = max([int(inf.get(r, 0)) for r in REGIMES] + [1])
@@ -383,7 +326,7 @@ def painel():
         st.markdown(f'<div class="reg">{linhas}</div>', unsafe_allow_html=True)
         div = int(base.apply(lambda r: diverge(r["REGIME_INFORMADO"], r["REGIME_SUGERIDO_API"]), axis=1).sum())
         st.caption(f"Divergências entre o informado e a consulta de CNPJ: {div}")
-    with d.container(border=True, key="card_agente"):
+    with d.container(border=True):
         st.markdown("**Últimas atualizações do agente**")
         mov = base[base["STATUS"].isin(ENVIADOS | {"erro"})].sort_values("ATUALIZADO_EM", ascending=False).head(8)
         if mov.empty:
@@ -443,4 +386,4 @@ def painel():
 
 painel()
 st.markdown('<div class="signature-fixed">Created by SS.</div>', unsafe_allow_html=True)
-st.markdown('<style>@media (min-width: 641px) {.assinatura-mobile {display:none;}}</style><p class="assinatura-mobile" style="font-size:11px;font-weight:700;color:var(--pa-sub);margin-top:24px">Created by SS.</p>', unsafe_allow_html=True)
+st.markdown('<style>@media (min-width: 641px) {.assinatura-mobile {display:none;}}</style><p class="assinatura-mobile" style="font-size:11px;font-weight:700;color:#7a8a8a;margin-top:24px">Created by SS.</p>', unsafe_allow_html=True)
