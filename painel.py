@@ -341,10 +341,12 @@ def painel():
     formulario_manual(df)
 
     st.write("")
-    f1, f2, f3 = st.columns([3, 2, 2])
+    f1, f2, f3, f4, f5 = st.columns([3, 2, 2, 1.5, 1.5])
     busca = f1.text_input("Buscar fornecedor ou CNPJ", placeholder="Nome ou CNPJ", key="busca")
     status_sel = f2.multiselect("Status", list(ROTULO.values()), key="status_sel")
     regime_sel = f3.selectbox("Regime informado", ["Todos"] + REGIMES + ["Sem resposta"], key="regime_sel")
+    abc_qtd_sel = f4.selectbox("ABC qtd.", ["Todas", "A", "B", "C"], key="abc_qtd_sel")
+    abc_valor_sel = f5.selectbox("ABC valor", ["Todas", "A", "B", "C"], key="abc_valor_sel")
 
     tab = df.copy()
     tab["Status"] = tab["STATUS"].map(ROTULO).fillna(tab["STATUS"])
@@ -363,6 +365,10 @@ def painel():
         tab = tab[tab["REGIME_INFORMADO"] == ""]
     elif regime_sel != "Todos":
         tab = tab[tab["REGIME_INFORMADO"] == regime_sel]
+    if abc_qtd_sel != "Todas":
+        tab = tab[tab["ABC qtd."] == abc_qtd_sel]
+    if abc_valor_sel != "Todas":
+        tab = tab[tab["ABC valor"] == abc_valor_sel]
 
     tab["Origem do regime"] = tab["ORIGEM_REGIME"].where(tab["ORIGEM_REGIME"] != "",
                                                           tab["REGIME_INFORMADO"].map(lambda x: "e-mail" if x else ""))
